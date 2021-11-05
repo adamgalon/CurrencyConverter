@@ -1,8 +1,11 @@
 package com.example.currencyconverter.utlis
 
+import com.example.currencyconverter.BuildConfig
+
+
 class Constants {
     companion object {
-        const val API_KEY = "bea828d0-3d80-11ec-946c-65c45215b926"
+        const val API_KEY = BuildConfig.API_KEY
         const val BASE_URL = "https://freecurrencyapi.net"
     }
 }
