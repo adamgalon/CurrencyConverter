@@ -8,20 +8,21 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface CurrencyApi {
+
     @GET("api/v2/latest")
     suspend fun getLatestCurrency(
         @Query("apikey")
         apiKey: String = Constants.API_KEY,
     ): Response<CurrencyResponse>
 
+
     @GET("api/v2/latest")
-    suspend fun getSpecificCurrency(
+    suspend fun getBaseCurrency(
         @Query("apikey")
         apiKey: String = Constants.API_KEY,
-        @Path("base_currency")
-        currency: String = "USD"
+        @Query("base_currency")
+        base: String = "PLN"
     ): Response<CurrencyResponse>
 }
-
 
 //https://freecurrencyapi.net/api/v2/latest?apikey=bea828d0-3d80-11ec-946c-65c45215b926&base_currency=USD
