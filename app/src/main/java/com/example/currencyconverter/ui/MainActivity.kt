@@ -24,8 +24,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setUpClickListeners()
-//        updateUi()
-
+        updateUi()
     }
 
 
@@ -40,10 +39,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    private fun updateUi() {
-//        viewModel.conversion.observe(this, Observer { currency ->
-//            binding.tilResult.text = currency
-//        })
-//    }
-
+    private fun updateUi() {
+        viewModel.conversion.observe(this, Observer { currency ->
+            binding.tilResult.text = currency
+        })
+    }
 }

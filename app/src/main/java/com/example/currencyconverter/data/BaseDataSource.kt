@@ -1,4 +1,4 @@
-package com.example.currencyconverter.data.models
+package com.example.currencyconverter.data
 
 import com.example.currencyconverter.utlis.Resource
 import retrofit2.Response

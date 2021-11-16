@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.internal.format
+import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
 import kotlin.math.round
@@ -28,8 +30,8 @@ import kotlin.math.round
 class ConverterViewModel
 @Inject constructor(private val currencyRepository: CurrencyRepository) : ViewModel() {
 
-    private val _conversion = MutableLiveData<Resource<String?>>()
-    var conversion: LiveData<Resource<String?>> = _conversion
+    private val _conversion = MutableLiveData<String?>()
+    var conversion: LiveData<String?> = _conversion
 
 
     fun converter(
@@ -37,35 +39,25 @@ class ConverterViewModel
         fromCurrency: String,
         toCurrency: String
     ) {
-
-
-
-
-
-/*        if (fromAmount.isEmpty() && fromAmount != "0") {
-            _conversion.postValue(Resource.Error(""))
-            return
+        if (fromAmount.isEmpty() && fromAmount != "0") {
+            _conversion.postValue("Empty Amount ")
         }
         val amount = fromAmount.toDouble()
-
         viewModelScope.launch {
-            _conversion.postValue(Resource.Loading())
-            when (val response = getBaseCurrency(Constants.API_KEY, fromCurrency)) {
+            when (val response =
+                currencyRepository.getBaseCurrency(Constants.API_KEY, fromCurrency)) {
                 is Resource.Success -> {
                     val rates = response.data!!.data
                     val rate = getCurrencyRate(toCurrency, rates)
                     val convertedCurrency = amount * rate!!
+                    //format the result obtained e.g 1000 = 1,000
+                    val formattedString =
+                        String.format("%,.2f", convertedCurrency)
                     _conversion.value =
-                        "$convertedCurrency $toCurrency=$fromAmount $fromCurrency"
-                }
-                is Resource.Error -> {
-                    _conversion.value = response.message
-                }
-                is Resource.Loading -> {
+                        " $fromAmount $fromCurrency -> $formattedString $toCurrency "                }
 
-                }
             }
-        }*/
+        }
     }
 
 
