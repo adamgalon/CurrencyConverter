@@ -1,7 +1,7 @@
 package com.example.currencyconverter.repository
 
 import com.example.currencyconverter.data.CurrencyApi
-import com.example.currencyconverter.data.BaseDataSource
+import com.example.currencyconverter.utlis.BaseDataSource
 import com.example.currencyconverter.data.models.CurrencyResponse
 import com.example.currencyconverter.utlis.Resource
 import javax.inject.Inject

@@ -1,61 +1,68 @@
 package com.example.currencyconverter.ui
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
-import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.currencyconverter.R
 import com.example.currencyconverter.data.models.CurrencyResponse
 import com.example.currencyconverter.data.models.Data
 import com.example.currencyconverter.repository.CurrencyRepository
 import com.example.currencyconverter.utlis.Constants
 import com.example.currencyconverter.utlis.Resource
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.internal.format
 import timber.log.Timber
 import java.lang.Exception
+import java.lang.Math.round
 import javax.inject.Inject
-import kotlin.math.round
 
 
 @HiltViewModel
 class ConverterViewModel
 @Inject constructor(private val currencyRepository: CurrencyRepository) : ViewModel() {
 
-    private val _conversion = MutableLiveData<String?>()
-    var conversion: LiveData<String?> = _conversion
+    //Todo: Correct resource class add viewModel for conversion!!
+    private val _conversion = MutableLiveData<Resource<CurrencyResponse>>()
+    val conversion: LiveData<Resource<CurrencyResponse>> = _conversion
 
 
-    fun converter(
-        fromAmount: String,
+    private val _convertedMoney = MutableLiveData<String>()
+    val convertedMoney: LiveData<String> = _convertedMoney
+
+    fun convert(
+        amountStr: String,
         fromCurrency: String,
         toCurrency: String
     ) {
-        if (fromAmount.isEmpty() && fromAmount != "0") {
-            _conversion.postValue("Empty Amount ")
+        val fromAmount = amountStr.toFloatOrNull()
+        if (fromAmount == null) {
+            _conversion.value = Resource.Error("Your amount must not be null or 0")
+            return
         }
-        val amount = fromAmount.toDouble()
+        //Todo: Correct resource class | or different way to convert data
         viewModelScope.launch {
-            when (val response =
+            _conversion.value = Resource.Loading()
+            when (val ratesResponse =
                 currencyRepository.getBaseCurrency(Constants.API_KEY, fromCurrency)) {
+                is Resource.Error -> _conversion.value =
+                    Resource.Error(ratesResponse.message!!)
                 is Resource.Success -> {
-                    val rates = response.data!!.data
+                    val rates = ratesResponse.data!!.data
                     val rate = getCurrencyRate(toCurrency, rates)
-                    val convertedCurrency = amount * rate!!
-                    //format the result obtained e.g 1000 = 1,000
-                    val formattedString =
-                        String.format("%,.2f", convertedCurrency)
-                    _conversion.value =
-                        " $fromAmount $fromCurrency -> $formattedString $toCurrency "                }
-
+                    if (rate == null) {
+                        _conversion.value = Resource.Error("Unexpected error")
+                    } else {
+                        val convertedCurrency = fromAmount * rate
+                        _convertedMoney.value =
+                            "$fromAmount $fromCurrency = ${
+                                format(
+                                    "%,.2f",
+                                    convertedCurrency
+                                )
+                            } $toCurrency"
+                    }
+                }
             }
         }
     }
@@ -100,5 +107,3 @@ class ConverterViewModel
 
         }
 }
-
-

@@ -1,15 +1,13 @@
 package com.example.currencyconverter.ui
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import com.example.currencyconverter.data.models.Data
 import com.example.currencyconverter.databinding.ActivityMainBinding
+import com.example.currencyconverter.utlis.Constants
+import com.example.currencyconverter.utlis.Resource
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -23,25 +21,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setUpClickListeners()
-        updateUi()
-    }
 
 
-    private fun setUpClickListeners() {
         binding.btnConvert.setOnClickListener {
-            viewModel.converter(
+            viewModel.convert(
                 binding.tietAmount.text.toString(),
                 binding.spFromCurrency.selectedItem.toString(),
-                binding.spToCurrency.selectedItem.toString()
-
+                binding.spToCurrency.selectedItem.toString(),
             )
         }
-    }
 
-    private fun updateUi() {
-        viewModel.conversion.observe(this, Observer { currency ->
-            binding.tilResult.text = currency
+        viewModel.convertedMoney.observe(this, Observer { result ->
+            binding.tilResult.text = result
         })
+
     }
 }
