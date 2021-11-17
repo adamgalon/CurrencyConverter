@@ -22,29 +22,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getCurrency(Constants.API_KEY, "USD")
 
-        viewModel.conversion.observe(this, Observer { results ->
-            when (results) {
-                is Resource.Success -> {
-                    binding.btnConvert.setOnClickListener {
-                        binding.tilResult.text = results.data.toString()
+        binding.btnConvert.setOnClickListener {
+            viewModel.convert(
+                binding.tietAmount.text.toString(),
+                binding.spFromCurrency.selectedItem.toString(),
+                binding.spToCurrency.selectedItem.toString(),
+            )
+        }
 
-
-                    }
-
-                }
-                is Resource.Error -> {
-
-                    val layout = binding.scrollView
-                    Snackbar.make(
-                        layout,
-                        "Something went wrong, try again or check internet connection.",
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .show()
-                }
-            }
+        viewModel.convertedMoney.observe(this, Observer { result ->
+            binding.tilResult.text = result
         })
+
     }
 }

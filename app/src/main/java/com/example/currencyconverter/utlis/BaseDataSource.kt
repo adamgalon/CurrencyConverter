@@ -1,6 +1,5 @@
-package com.example.currencyconverter.data
+package com.example.currencyconverter.utlis
 
-import com.example.currencyconverter.utlis.Resource
 import retrofit2.Response
 import timber.log.Timber
 

@@ -11,42 +11,61 @@ import com.example.currencyconverter.utlis.Constants
 import com.example.currencyconverter.utlis.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.internal.format
 import timber.log.Timber
 import java.lang.Exception
+import java.lang.Math.round
 import javax.inject.Inject
-import kotlin.math.round
 
 
 @HiltViewModel
 class ConverterViewModel
 @Inject constructor(private val currencyRepository: CurrencyRepository) : ViewModel() {
 
+    //Todo: Correct resource class add viewModel for conversion!!
     private val _conversion = MutableLiveData<Resource<CurrencyResponse>>()
     val conversion: LiveData<Resource<CurrencyResponse>> = _conversion
 
-    fun getCurrency(apiKey: String, base: String) {
-        try {
-            viewModelScope.launch {
-                _conversion.value = currencyRepository.getBaseCurrency(apiKey, base)
+
+    private val _convertedMoney = MutableLiveData<String>()
+    val convertedMoney: LiveData<String> = _convertedMoney
+
+    fun convert(
+        amountStr: String,
+        fromCurrency: String,
+        toCurrency: String
+    ) {
+        val fromAmount = amountStr.toFloatOrNull()
+        if (fromAmount == null) {
+            _conversion.value = Resource.Error("Your amount must not be null or 0")
+            return
+        }
+        //Todo: Correct resource class | or different way to convert data
+        viewModelScope.launch {
+            _conversion.value = Resource.Loading()
+            when (val ratesResponse =
+                currencyRepository.getBaseCurrency(Constants.API_KEY, fromCurrency)) {
+                is Resource.Error -> _conversion.value =
+                    Resource.Error(ratesResponse.message!!)
+                is Resource.Success -> {
+                    val rates = ratesResponse.data!!.data
+                    val rate = getCurrencyRate(toCurrency, rates)
+                    if (rate == null) {
+                        _conversion.value = Resource.Error("Unexpected error")
+                    } else {
+                        val convertedCurrency = fromAmount * rate
+                        _convertedMoney.value =
+                            "$fromAmount $fromCurrency = ${
+                                format(
+                                    "%,.2f",
+                                    convertedCurrency
+                                )
+                            } $toCurrency"
+                    }
+                }
             }
-        } catch (e: Exception) {
-            Timber.d("ViewModel Exception $e")
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private fun getCurrencyRate(currency: String, rate: Data) =
